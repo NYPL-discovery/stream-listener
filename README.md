@@ -1,4 +1,4 @@
-# Stream Listender
+# Stream Listener
 
 Simple script for reading events from a Kinesis stream and writing them to disk.
 
