@@ -4,22 +4,21 @@
  * Decode payloads of received events, and write the resultant json to disk.
  *
  * Usage:
- *   node listen --stream STREAMNAME [--from TIMESTAMP]
+ *   node stream-listen --stream STREAMNAME [--timestamp TIMESTAMP] [--decode] [--profile PROFILE] [--schema SCHEMANAME]
  */
 const path = require('path')
 const fs = require('fs')
 const AWS = require('aws-sdk')
-const dotenv = require('dotenv')
 
 const NyplClient = require('@nypl/nypl-data-api-client')
 const dataApiClient = new NyplClient({ base_url: 'http://platform.nypl.org/api/v0.1/' })
 
 const argv = require('minimist')(process.argv.slice(2))
 
-AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: 'nypl-sandbox' })
+AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: argv.profile || 'nypl-sandbox' })
 
 const streamName = argv.stream
-const schemaName = argv.schemaName || streamName
+const schemaName = argv.schema || streamName
 
 // Set aws region:
 let awsSecurity = { region: 'us-east-1' }
@@ -46,9 +45,6 @@ const kinesisReadable = require('kinesis-readable')(client, options)
 
 const destinationDirectory = './data'
 if (!fs.existsSync(destinationDirectory)) fs.mkdirSync(destinationDirectory)
-
-// Load .env vars:
-dotenv.config()
 
 dataApiClient.get(`current-schemas/${schemaName}`, { authenticate: false }).then((resp) => {
   let schema = resp.data
@@ -89,7 +85,9 @@ dataApiClient.get(`current-schemas/${schemaName}`, { authenticate: false }).then
         if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir)
 
         // Establish event filename:
-        const filename = [ev.PartitionKey, ev.SequenceNumber, ind].join('-') + '.json'
+        const filename = [ev.PartitionKey, ev.SequenceNumber, ind].join('-') +
+          (argv.decode ? '.decoded' : '') +
+          '.json'
 
         const writePath = path.join(baseDir, filename)
         console.log(`  > ${writePath}`)
