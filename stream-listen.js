@@ -30,7 +30,7 @@ const client = new AWS.Kinesis({
 })
 
 var options = {
-  // shardId: 'shard-identifier', // defaults to first shard in the stream
+  shardId: argv.shardId || 'shardId-000000000001',
   // iterator: 'LATEST', // default to TRIM_HORIZON
   // startAfter: '12345678901234567890', // start reading after this sequence number
   // startAt: '12345678901234567890', // start reading from this sequence number
