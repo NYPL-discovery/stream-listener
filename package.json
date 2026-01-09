@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@nypl/nypl-data-api-client": "^1.0.0",
-    "aws-sdk": "^2.292.0",
+    "aws-sdk": "^2.1693.0",
     "kinesis-readable": "^1.2.0"
   }
 }
